@@ -27,20 +27,22 @@ public class MailRobotApplication implements CommandLineRunner{
     public void run(String... args) throws Exception {
          try {
            
-            mailRobot.setAddress("alex.sokolovsky00@mail.ru");
-            mailRobot.setPassword("1945100597f");
-            mailRobot.setImapHost("mail.ru");
+            mailRobot.setAddress("example@example.com");
+            mailRobot.setPassword("password");
+            mailRobot.setImapHost("example.com");
+            
+//          Тема, по которой робот будет искать сообщения
             mailRobot.setSubject("Тест");
 
             Set<String> schema = new HashSet<>();
-            schema.add("Имя");
-            schema.add("Фамилия");
-            schema.add("Текст");
+            schema.add("Поле1");
+            schema.add("Поле2");
+            schema.add("Поле3");
             mailRobot.setSchema(schema);
             
             List<HashMap<String, Object>> mwssages = mailRobot.getMessagesContent();
 
-            System.out.println(mwssages);
+
         } catch (MessagingException | IOException ex) {
             
         }

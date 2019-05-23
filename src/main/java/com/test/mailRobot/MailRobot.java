@@ -29,11 +29,16 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class MailRobot {
-
+//  Тема, по которой робот будет искать сообщения
     private String subject;
+    
     private String address;
+    
     private String password;
+    
     private String imapHost;
+    
+//    Набор ключей, значения которых робот будет искать в тексте сообщения
     private Set<String> schema;
     
     @Autowired
@@ -42,6 +47,14 @@ public class MailRobot {
     public MailRobot() {
     }
 
+    /**
+     * Устанавливает соединение с почтовым ящиком, получает сообщения из него, 
+     * получает список обработанных сообщений из метода parseMessages,
+     * Закрывает соединение с ящиком
+     * @return Список сообщений (каждое в виде HashMap)
+     * @throws MessagingException
+     * @throws IOException
+     */
     public List<HashMap<String, Object>> getMessagesContent() throws MessagingException, IOException {
         Properties properties = new Properties();
         properties.put("mail.debug", "false");
@@ -66,6 +79,15 @@ public class MailRobot {
         return result;
     }
 
+    /**
+     * Метод находит сообщения с заданной темой,извлекает из них текст, 
+     * передает его  в MailParser и удаляет обработанные сообщения
+     * 
+     * @param messages список сообщений почтового ящика
+     * @return Список сообщений (каждое в виде HashMap)
+     * @throws MessagingException
+     * @throws IOException
+     */
     public List<HashMap<String, Object>> parseMessages( List<Message> messages) throws MessagingException, IOException {
         List<HashMap<String, Object>> result = new ArrayList<>();
         for (Message m : messages) {
