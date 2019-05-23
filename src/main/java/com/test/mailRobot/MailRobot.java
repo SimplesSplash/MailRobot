@@ -20,12 +20,12 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.Store;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
  *
- * @author Валерия
+ * @author Alex
  */
 @Component
 public class MailRobot {
@@ -35,11 +35,14 @@ public class MailRobot {
     private String password;
     private String imapHost;
     private Set<String> schema;
+    
+    @Autowired
+    private MailParser mailParser;
 
     public MailRobot() {
     }
 
-    public List<HashMap<String, Object>> getMessages() throws MessagingException, IOException {
+    public List<HashMap<String, Object>> getMessagesContent() throws MessagingException, IOException {
         Properties properties = new Properties();
         properties.put("mail.debug", "false");
         properties.put("mail.store.protocol", "imaps");
@@ -69,30 +72,8 @@ public class MailRobot {
             if (subject.equals(m.getSubject())) {
                 Multipart mpmessage = (Multipart) m.getContent();
                 BodyPart bp = mpmessage.getBodyPart(0);
-                String text = bp.getContent().toString();
-                HashMap<String, Object> message = new HashMap<String, Object>();
-                boolean isLast = false;
-                for (String field : schema) {
-                    int startChar = text.indexOf(field + ":");
-                    startChar += field.length() + 1;
-                    int endChar = -1;
-                    if (text.indexOf("\n") > 0) {
-                        endChar = text.indexOf("\n");
-                    } else {
-                        endChar = text.length();
-                        isLast = true;
-                    }
-                    String value = text.substring(startChar, endChar);
-                    if (!isLast) {
-                        text = text.substring(endChar + 1);
-                    } else {
-                        text = text.substring(endChar);
-                    }
-
-                    message.put(field, value);
-                }
-
-                result.add(message);
+                String text = bp.getContent().toString();            
+                result.add(mailParser.parseMessage(text, schema));
                 m.setFlag(Flags.Flag.DELETED, true);
             }
             
@@ -129,7 +110,7 @@ public class MailRobot {
     }
 
     public void setImapHost(String imapHost) {
-        this.imapHost = imapHost;
+        this.imapHost = "imap."+imapHost;
     }
 
     public Set<String> getSchema() {
